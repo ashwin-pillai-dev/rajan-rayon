@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  // previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("TURSO_DATABASE_URL")
+}
+
+model Admin {
+  id          Int       @id @default(autoincrement())
+  email       String?   @unique
+  contact     String?   @unique
+  password    String?
+  name        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  adminRoleId Int
+  role        AdminRole @relation(fields: [adminRoleId], references: [id])
+}
+
+model AdminRole {
+  id        Int      @id @default(autoincrement())
+  roleName  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  admins    Admin[]
+}
+
+model Material {
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  avgPrice            Float // Price per unit
+  quantity            Float // Total number of units in stock
+  transactions        TransactionLog[]     @relation("MaterialTransactions")
+  productionMaterials ProductionMaterial[] @relation("ProductionMaterialMaterial") // Reverse relation
+  createdAt           DateTime             @default(now())
+}
+
+model Chemical {
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  avgPrice            Float // Price per unit
+  quantity            Float // Total number of units in stock
+  transactions        TransactionLog[]      @relation("ChemicalTransactions")
+  productionMaterials ProductionMaterial[]  @relation("ProductionMaterialChemical") // Reverse relation
+  createdAt           DateTime              @default(now())
+  ChemicalComposition ChemicalComposition[]
+}
+
+model Color {
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  avgPrice            Float // Price per unit
+  quantity            Float // Total number of units in stock
+  transactions        TransactionLog[]     @relation("ColorTransactions")
+  productionMaterials ProductionMaterial[] @relation("ProductionMaterialColor") // Reverse relation
+  createdAt           DateTime             @default(now())
+
+  ColorComposition ColorComposition[]
+}
+
+model Shade {
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  description         String?
+  colorComposition    ColorComposition[] // Composition of colors and chemicals
+  chemicalComposition ChemicalComposition[] // Composition of chemicals used in creating the shade
+  productionLogs      ProductionLog[] // Logs related to this shade
+  createdAt           DateTime              @default(now())
+}
+
+model ColorComposition {
+  id        Int      @id @default(autoincrement())
+  shadeId   Int
+  colorId   Int
+  quantity  Float // Quantity of color used (total weight/volume)
+  shade     Shade    @relation(fields: [shadeId], references: [id])
+  color     Color    @relation(fields: [colorId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model ChemicalComposition {
+  id         Int      @id @default(autoincrement())
+  shadeId    Int
+  chemicalId Int
+  quantity   Float // Quantity of chemical used (total weight/volume)
+  shade      Shade    @relation(fields: [shadeId], references: [id])
+  chemical   Chemical @relation(fields: [chemicalId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+model ProductionLog {
+  id               Int                  @id @default(autoincrement())
+  batchNumber      String // Unique batch number
+  shadeId          Int
+  materialsUsed    ProductionMaterial[] // Materials used in production
+  quantityProduced Float // Quantity of shade produced (total weight/volume)
+  totalCosting     Float // costing of shade produced
+  shade            Shade                @relation(fields: [shadeId], references: [id])
+  createdAt        DateTime             @default(now())
+  TransactionLog   TransactionLog[]
+}
+
+model ProductionMaterial {
+  id              Int    @id @default(autoincrement())
+  productionLogId Int
+  entityType      String // 'MATERIAL', 'COLOR', 'CHEMICAL'
+  entityId        Int // ID of the associated entity
+  quantity        Float // Total weight/volume used
+  costing         Float // Costing according to quantity
+
+  productionLog ProductionLog @relation(fields: [productionLogId], references: [id])
+
+  material Material? @relation("ProductionMaterialMaterial", fields: [entityId], references: [id])
+  color    Color?    @relation("ProductionMaterialColor", fields: [entityId], references: [id])
+  chemical Chemical? @relation("ProductionMaterialChemical", fields: [entityId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model TransactionLog {
+  id                 Int            @id @default(autoincrement())
+  transactionType    String // 'PURCHASE', 'INWARD', 'OUTWARD', 'LOSS'
+  quantity           Float // Quantity of material/color/chemical moved
+  units              Float // Units of material/chemical/color
+  entityType         String // 'MATERIAL', 'COLOR', 'CHEMICAL'
+  entityId           Int
+  description        String? // Optional description
+  productionLogId    Int? // Reference to the ProductionLog for OUTWARD transactions
+  lossReason         String? // Reason for loss (if applicable)
+  billDate           DateTime? // For PURCHASE transactions
+  invoice            String? // For PURCHASE transactions
+  totalAmount        Float?
+  transportationCost Float?
+  receivingDate      DateTime? // For PURCHASE transactions
+  createdAt          DateTime       @default(now())
+  supplierId         Int? // For PURCHASE transactions
+  supplier           Supplier?      @relation(fields: [supplierId], references: [id])
+  productionLog      ProductionLog? @relation(fields: [productionLogId], references: [id])
+  material           Material?      @relation("MaterialTransactions", fields: [entityId], references: [id])
+  chemical           Chemical?      @relation("ChemicalTransactions", fields: [entityId], references: [id])
+  color              Color?         @relation("ColorTransactions", fields: [entityId], references: [id])
+}
+
+model Supplier {
+  id              Int              @id @default(autoincrement())
+  name            String
+  contactInfo     String?
+  address         String?
+  gstNumber         String?
+  transactionLogs TransactionLog[]
+  createdAt       DateTime         @default(now())
+}
