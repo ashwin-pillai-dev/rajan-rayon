@@ -15,7 +15,7 @@ if (process.env.NODE_ENV === 'production') {
   })
 
   const adapter = new PrismaLibSQL(libsql)
-  prisma = new PrismaClient({ adapter }) //comment for running seed file
+  // prisma = new PrismaClient({ adapter }) //comment for running seed file
 } else {
   if (!global.prisma) {
     
@@ -23,6 +23,6 @@ if (process.env.NODE_ENV === 'production') {
   }
   prisma = global.prisma
 }
-// prisma = new PrismaClient() uncomment for running seed file
+prisma = new PrismaClient() //uncomment for running seed file
 
 export default prisma

@@ -1,8 +1,9 @@
 'use server'
 import { Material, Prisma, TransactionLog } from '@prisma/client';
 import prisma from '../../../lib/prisma';
-import { materialFormType } from './add/materialSchema';
+import { materialFormType } from '../shades/add/shadeSchema';
 import { inwardTransactionFormType } from '../components/zodSchemas/inwardTransacrionSchema';
+import { redirect } from 'next/navigation';
 
 
 
@@ -13,14 +14,28 @@ export async function addMaterial(input: materialFormType): Promise<Material> {
     const { name, avgPrice, quantity } = input
     const data: Prisma.MaterialCreateInput = {
         name: name,
-        avgPrice,
+        avgPrice:avgPrice/quantity,
         quantity,
+        openingStock:quantity,
+        totalAmount:avgPrice,
     }
     let material: Material;
     try {
         material = await prisma.material.create({
             data
         });
+
+        await prisma.transactionLog.create({
+            data:{
+                entityType:'MATERIAL',
+                transactionType:'INWARD',
+                quantity:data.quantity,
+                totalAmount:avgPrice,
+                units:quantity,
+                description:`${data.quantity}kgs Material added as opening stock`,
+                materialId:material.id
+            }
+        })
 
         return material;
     } catch (error) {
@@ -52,7 +67,7 @@ export async function addStocksToMaterial(params: inwardTransactionFormType) {
         material: {
             connect: {
                 id: params.entityId
-            },
+            }
         },
         supplier:{
             connect:{
@@ -72,12 +87,76 @@ export async function addStocksToMaterial(params: inwardTransactionFormType) {
         }
     }
     ) 
+    console.log('material-log add response: ',res);
+    
+
+    // const sumOfRemainingStock = await prisma.transactionLog.aggregate({
+    //     _sum:{
+    //         totalAmount:true,
+    //         quantity:true,
+    //     } ,
+    //     where:{
+    //         quantity:{
+    //             not:0,
+    //         },
+    //         materialId:Number(params.entityId),
+    //         entityType:{
+    //             equals:'MATERIAL'
+    //         }
+    //     }
+    // })
+
+    // if(sumOfRemainingStock._sum.totalAmount && sumOfRemainingStock._sum.quantity ){
+    //     const updatedAvgPrice = await prisma.material.update({
+    //         data:{
+    //             avgPrice:Number((sumOfRemainingStock._sum.totalAmount/sumOfRemainingStock._sum.quantity).toFixed(2)),
+    //             quantity:sumOfRemainingStock._sum.quantity,
+    //             totalAmount:sumOfRemainingStock._sum.totalAmount
+    //         },
+    //         where:{
+    //             id:params.entityId
+    //         }
+    //     })
+    //     console.log('updatedAvgPrice: ',updatedAvgPrice);
+        
+
+    // }
+
+    const currentMaterialObj = await prisma.material.findUnique({
+        where:{
+            id:params.entityId
+        }
+    })
+
+    console.log('currentMaterialObj : ',currentMaterialObj);
+
+    
+    
+
+
+    if(currentMaterialObj ){
+
+        const newTotalAmount = currentMaterialObj.totalAmount + (data.totalAmount?data.totalAmount:0);
+        const newTotalQty = currentMaterialObj.quantity + (data.quantity?data.quantity:0);
+        const newAvg = newTotalAmount/newTotalQty ;
+
+        const updatedAvgPrice = await prisma.material.update({
+            data:{
+                avgPrice:Number((newAvg).toFixed(2)),
+                quantity:Number(newTotalQty.toFixed()),
+                totalAmount:Number(newTotalAmount.toFixed())
+            },
+            where:{
+                id:params.entityId
+            }
+        })
+        console.log('updatedAvgPrice: ',updatedAvgPrice);
+        
+
+    }
     console.log('addStocksToMaterialResponse: ', res);
 
-
-
-    return null;
-
+    return res;
 }
 
 export async function updateMaterial(input: materialFormType, id: number): Promise<Material> {

@@ -87,9 +87,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt: ({ token, user }) => {
       return token
     },
-    authorized: async ({ auth }) => {
-      console.log('auth : ',auth);
-      
+    authorized: async ({ auth }) => {      
       // Logged in users are authenticated, otherwise redirect to login page
       return !!auth
     },

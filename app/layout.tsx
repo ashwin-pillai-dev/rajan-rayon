@@ -1,12 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import 'sweetalert2/src/sweetalert2.scss';
 import "./globals.css";
-import 'sweetalert2/src/sweetalert2.scss'
-import { ThemeModeScript } from "flowbite-react";
-import { Suspense } from "react";
-import Loading from './loading'
-import NavSideWrapper from "./components/NavSideWrapper/navSideWrapper";
-import { auth } from "@/auth";
 
 
 
@@ -23,7 +18,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Rajan",
+  title: "Rajan-rayon",
   description: "Stock Management",
 };
 
@@ -34,10 +29,6 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {/* <ThemeModeScript /> */}
-
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

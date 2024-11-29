@@ -57,6 +57,7 @@ export default async function page({ searchParams,
                                     <th scope="col" className="px-4 py-3">Material Name</th>
                                     <th scope="col" className="px-4 py-3">Total Stock</th>
                                     <th scope="col" className="px-4 py-3">Avg Price</th>
+                                    <th scope="col" className="px-4 py-3">Total Price</th>
                                     <th scope="col" className="px-4 py-3">Actions</th>
                                 </tr>
                             </thead>
@@ -65,37 +66,34 @@ export default async function page({ searchParams,
                                     materials.map((material) => {
                                         return (
                                             <tr className="border-b dark:border-gray-700" key={material.id}>
-
-
                                                 <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                     <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
-                                                    <a href={`/admin/material/stock-updates/${material.id}`} className="text-blue-400 cursor-pointer text-underline">
-                                                        {material.name}
-                                                    </a>
+                                                        <a href={`/admin/material/stock-updates/${material.id}`} className="text-blue-400 cursor-pointer text-underline">
+                                                            {material.name}
+                                                        </a>
                                                     </span>
-
                                                 </td>
 
                                                 <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                     <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
                                                         {material.quantity} KGs
                                                     </span>
-
                                                 </td>
                                                 <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                     <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
-                                                        {material.avgPrice}
+                                                        {material.avgPrice} Per KG
                                                     </span>
-
                                                 </td>
-                                                
-
+                                                <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                    <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
+                                                        {(material.totalAmount).toFixed(2)} 
+                                                    </span>
+                                                </td>
                                                 <td className="px-4 py-3">
                                                     <a href={`/admin/material/edit/${material.id}`} className="text-blue-400 cursor-pointer text-underline">
                                                         Edit
                                                     </a>
                                                 </td>
-
                                             </tr>
                                         )
                                     })

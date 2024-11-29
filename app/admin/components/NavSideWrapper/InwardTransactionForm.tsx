@@ -16,7 +16,7 @@ interface InwardTransactionFormProps {
     addInwardTransaction: (data: inwardTransactionFormType) => Promise<any>; // Entity type should be passed as a prop
 }
 
-export default function InwardTransactionForm({ entityType, entityId, suppliers,addInwardTransaction }: InwardTransactionFormProps) {
+export default function InwardTransactionForm({ entityType, entityId, suppliers, addInwardTransaction }: InwardTransactionFormProps) {
     const {
         register,
         handleSubmit,
@@ -24,7 +24,7 @@ export default function InwardTransactionForm({ entityType, entityId, suppliers,
         getValues,
         formState: { errors, isSubmitting },
     } = useForm<inwardTransactionFormType>({
-        defaultValues: { entityType, entityId,transactionType:'INWARD' }, // Sets entityType as a default value
+        defaultValues: { entityType, entityId, transactionType: 'INWARD' }, // Sets entityType as a default value
         resolver: zodResolver(inwardTransactionSchema), // Validates the form using Zod schema
     });
 
@@ -33,12 +33,20 @@ export default function InwardTransactionForm({ entityType, entityId, suppliers,
     async function onSubmit(data: inwardTransactionFormType) {
         try {
             // const res = {} // Replace with your actual action function for adding inward transaction
-            console.log('inward transaction data: ',data);
-            
-              const res = await addInwardTransaction(data); // Replace with your actual action function for adding inward transaction
+            console.log('inward transaction data: ', data);
+
+            const res = await addInwardTransaction(data); // Replace with your actual action function for adding inward transaction
             if (res) {
                 succesToastMessage({ message: 'Inward Transaction added successfully' });
-                // router.push('/admin/transactions/list'); // Adjust the redirect path as needed
+                if (entityType == 'MATERIAL') {
+                    router.push(`/admin/material/stock-updates/${entityId}`)
+                }
+                if (entityType == 'COLOR') {
+                    router.push(`/admin/colors/stock-updates/${entityId}`)
+                }
+                if (entityType == 'CHEMICAL') {
+                    router.push(`/admin/chemicals/stock-updates/${entityId}`)
+                }
             }
         } catch (error) {
             failToastMessage({ message: 'Failed to add Inward Transaction' });
@@ -47,15 +55,15 @@ export default function InwardTransactionForm({ entityType, entityId, suppliers,
 
     return (
         <form className="space-y-4 md:space-y-6"
-         onSubmit={handleSubmit(onSubmit)}
-         >
+            onSubmit={handleSubmit(onSubmit)}
+        >
             {/* Receiving Date Field */}
             <div>
                 <label htmlFor="receivingDate" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                     Receiving Date <span className="text-red-500">*</span>
                 </label>
                 <input
-                    {...register('receivingDate',{ setValueAs: (v) => v === "" ? undefined : new Date(v),})}
+                    {...register('receivingDate', { setValueAs: (v) => v === "" ? undefined : new Date(v), })}
                     type="date"
                     id="receivingDate"
                     className={`bg-gray-50 border ${errors.receivingDate ? 'border-red-500' : 'border-gray-300'} text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
@@ -69,7 +77,7 @@ export default function InwardTransactionForm({ entityType, entityId, suppliers,
                     Bill Date <span className="text-red-500">*</span>
                 </label>
                 <input
-                    {...register('billDate',{ setValueAs: (v) => v === "" ? undefined : new Date(v),})}
+                    {...register('billDate', { setValueAs: (v) => v === "" ? undefined : new Date(v), })}
                     type="date"
                     id="billDate"
                     className={`bg-gray-50 border ${errors.billDate ? 'border-red-500' : 'border-gray-300'} text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
@@ -115,7 +123,7 @@ export default function InwardTransactionForm({ entityType, entityId, suppliers,
                     Quantity <span className="text-red-500">*</span>
                 </label>
                 <input
-                    {...register('quantity',{setValueAs: (v) => v === "" ? undefined : Number(v),})}
+                    {...register('quantity', { setValueAs: (v) => v === "" ? undefined : Number(v), })}
                     type="number"
                     id="quantity"
                     className={`bg-gray-50 border ${errors.quantity ? 'border-red-500' : 'border-gray-300'} text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
@@ -130,7 +138,7 @@ export default function InwardTransactionForm({ entityType, entityId, suppliers,
                     Total Amount <span className="text-red-500">*</span>
                 </label>
                 <input
-                    {...register('totalAmount',{setValueAs: (v) => v === "" ? undefined : Number(v),})}
+                    {...register('totalAmount', { setValueAs: (v) => v === "" ? undefined : Number(v), })}
                     type="number"
                     id="totalAmount"
                     className={`bg-gray-50 border ${errors.totalAmount ? 'border-red-500' : 'border-gray-300'} text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
@@ -145,7 +153,7 @@ export default function InwardTransactionForm({ entityType, entityId, suppliers,
                     Transportation Cost
                 </label>
                 <input
-                    {...register('transportationCost',{ setValueAs: (v) => v === "" ? undefined : Number(v),})}
+                    {...register('transportationCost', { setValueAs: (v) => v === "" ? undefined : Number(v), })}
                     type="number"
                     id="transportationCost"
                     className={`bg-gray-50 border ${errors.transportationCost ? 'border-red-500' : 'border-gray-300'} text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
@@ -155,10 +163,10 @@ export default function InwardTransactionForm({ entityType, entityId, suppliers,
             </div>
 
             {/* Submit Button */}
-            <Button size="xs" 
-            // onClick={onSubmit}
-            type="submit" 
-            disabled={isSubmitting} className="w-full bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg px-5 py-2.5">
+            <Button size="xs"
+                // onClick={onSubmit}
+                type="submit"
+                disabled={isSubmitting} className="w-full bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg px-5 py-2.5">
                 <p className="text-white font-medium text-sm">Add Inward Transaction</p>
             </Button>
         </form>

@@ -57,22 +57,17 @@ export default async function page({ searchParams,
                                 <tr>
                                     <th scope="col" className="px-4 py-3">chemicals Name</th>
                                     <th scope="col" className="px-4 py-3">Total Stock</th>
-                                    <th scope="col" className="px-4 py-3">Price</th>
+                                    <th scope="col" className="px-4 py-3">AVG Price</th>
+                                    <th scope="col" className="px-4 py-3">Total Price</th>
                                     <th scope="col" className="px-4 py-3">Actions</th>
 
-                                    {/* <th scope="col" className="px-4 py-3"></th>
-                                    <th scope="col" className="px-4 py-3">Description</th>
-                                    <th scope="col" className="px-4 py-3">Price</th>
-                                    <th scope="col" className="px-4 py-3">
-                                        <span className="sr-only">Actions</span>
-                                    </th> */}
                                 </tr>
                             </thead>
                             <tbody>
                                 {
-                                    chemicals.map((chemicals) => {
+                                    chemicals.map((chemical) => {
                                         return (
-                                            <tr className="border-b dark:border-gray-700" key={chemicals.id}>
+                                            <tr className="border-b dark:border-gray-700" key={chemical.id}>
 
 
                                                 <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -80,7 +75,9 @@ export default async function page({ searchParams,
                                                 <Image fill={true} style={{objectFit:'contain'}} src={s3bucketurl + category.image } alt="" className="rounded-full" />
                                                 </div> */}
                                                     <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
-                                                        {chemicals.name}
+                                                    <a href={`/admin/chemicals/stock-updates/${chemical.id}`} className="text-blue-400 cursor-pointer text-underline">
+                                                        {chemical.name}
+                                                        </a>
                                                     </span>
 
                                                 </td>
@@ -90,7 +87,7 @@ export default async function page({ searchParams,
                                                 <Image fill={true} style={{objectFit:'contain'}} src={s3bucketurl + category.image } alt="" className="rounded-full" />
                                                 </div> */}
                                                     <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
-                                                       {chemicals.quantity} KGs
+                                                       {chemical.quantity} KGs
                                                     </span>
 
                                                 </td>
@@ -99,13 +96,19 @@ export default async function page({ searchParams,
                                                 <Image fill={true} style={{objectFit:'contain'}} src={s3bucketurl + category.image } alt="" className="rounded-full" />
                                                 </div> */}
                                                     <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
-                                                        {chemicals.avgPrice}
+                                                        {chemical.avgPrice}
                                                     </span>
 
+                                                </td>
+
+                                                <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                    <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
+                                                        {(chemical.totalAmount).toFixed(2)} 
+                                                    </span>
                                                 </td>
 
                                                 <td className="px-4 py-3">
-                                                    <a href={`/admin/chemicals/edit/${chemicals.id}`} className="text-blue-400 cursor-pointer text-underline">
+                                                    <a href={`/admin/chemicals/edit/${chemical.id}`} className="text-blue-400 cursor-pointer text-underline">
                                                         Edit
                                                     </a>
                                                 </td>

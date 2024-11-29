@@ -57,7 +57,8 @@ export default async function page({ searchParams,
                                 <tr>
                                     <th scope="col" className="px-4 py-3">Color Name</th>
                                     <th scope="col" className="px-4 py-3">Total Stock</th>
-                                    <th scope="col" className="px-4 py-3">Price</th>
+                                    <th scope="col" className="px-4 py-3">Avg Price</th>
+                                    <th scope="col" className="px-4 py-3">Total Price</th>
                                     <th scope="col" className="px-4 py-3">Actions</th>
 
                                 </tr>
@@ -71,28 +72,30 @@ export default async function page({ searchParams,
 
                                                 <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                     <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
+                                                    <a href={`/admin/colors/stock-updates/${color.id}`} className="text-blue-400 cursor-pointer text-underline">
                                                         {color.name}
+                                                    </a>
                                                     </span>
 
                                                 </td>
 
                                                 <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                    {/* <div className="relative w-16 h-16 rounded-lg overflow-hidden">
-                                                <Image fill={true} style={{objectFit:'contain'}} src={s3bucketurl + category.image } alt="" className="rounded-full" />
-                                                </div> */}
                                                     <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
                                                         {color.quantity} KGs
                                                     </span>
 
                                                 </td>
                                                 <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                    {/* <div className="relative w-16 h-16 rounded-lg overflow-hidden">
-                                                <Image fill={true} style={{objectFit:'contain'}} src={s3bucketurl + category.image } alt="" className="rounded-full" />
-                                                </div> */}
                                                     <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
-                                                        {color.avgPrice}
+                                                        {color.avgPrice} Per KG
                                                     </span>
 
+                                                </td>
+
+                                                <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                    <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
+                                                        {(color.totalAmount).toFixed(2)} 
+                                                    </span>
                                                 </td>
 
                                                 <td className="px-4 py-3">

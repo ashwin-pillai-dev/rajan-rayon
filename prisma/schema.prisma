@@ -31,25 +31,17 @@ model AdminRole {
   admins    Admin[]
 }
 
-model Material {
-  id                  Int                  @id @default(autoincrement())
-  name                String
-  avgPrice            Float // Price per unit
-  quantity            Float // Total number of units in stock
-  transactions        TransactionLog[]     @relation("MaterialTransactions")
-  productionMaterials ProductionMaterial[] @relation("ProductionMaterialMaterial") // Reverse relation
-  createdAt           DateTime             @default(now())
-}
-
 model Chemical {
   id                  Int                   @id @default(autoincrement())
   name                String
   avgPrice            Float // Price per unit
   quantity            Float // Total number of units in stock
-  transactions        TransactionLog[]      @relation("ChemicalTransactions")
+  totalAmount         Float                @default(0) // Aggregate sum amont of units in stock
+  openingStock        Float                 @default(0) // Opening stock when the stock is added initially
   productionMaterials ProductionMaterial[]  @relation("ProductionMaterialChemical") // Reverse relation
   createdAt           DateTime              @default(now())
   ChemicalComposition ChemicalComposition[]
+  TransactionLog      TransactionLog[]
 }
 
 model Color {
@@ -57,11 +49,12 @@ model Color {
   name                String
   avgPrice            Float // Price per unit
   quantity            Float // Total number of units in stock
-  transactions        TransactionLog[]     @relation("ColorTransactions")
+  totalAmount         Float                @default(0) // Aggregate sum amont of units in stock
+  openingStock        Float                @default(0) // Opening stock when the stock is added initially
   productionMaterials ProductionMaterial[] @relation("ProductionMaterialColor") // Reverse relation
   createdAt           DateTime             @default(now())
-
-  ColorComposition ColorComposition[]
+  ColorComposition    ColorComposition[]
+  TransactionLog      TransactionLog[]
 }
 
 model Shade {
@@ -123,13 +116,34 @@ model ProductionMaterial {
   createdAt DateTime @default(now())
 }
 
+model Material {
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  avgPrice            Float // Price per unit
+  quantity            Float // Total number of units in stock
+  totalAmount         Float                @default(0) // Aggregate sum amont of units in stock
+  openingStock        Float                @default(0) // Opening stock when the stock is added initially
+  productionMaterials ProductionMaterial[] @relation("ProductionMaterialMaterial") // Reverse relation
+  createdAt           DateTime             @default(now())
+  TransactionLog      TransactionLog[]
+}
+
+model Supplier {
+  id              Int              @id @default(autoincrement())
+  name            String
+  contactInfo     String?
+  address         String?
+  gstNumber       String?
+  transactionLogs TransactionLog[]
+  createdAt       DateTime         @default(now())
+}
+
 model TransactionLog {
   id                 Int            @id @default(autoincrement())
   transactionType    String // 'PURCHASE', 'INWARD', 'OUTWARD', 'LOSS'
   quantity           Float // Quantity of material/color/chemical moved
   units              Float // Units of material/chemical/color
   entityType         String // 'MATERIAL', 'COLOR', 'CHEMICAL'
-  entityId           Int
   description        String? // Optional description
   productionLogId    Int? // Reference to the ProductionLog for OUTWARD transactions
   lossReason         String? // Reason for loss (if applicable)
@@ -140,19 +154,14 @@ model TransactionLog {
   receivingDate      DateTime? // For PURCHASE transactions
   createdAt          DateTime       @default(now())
   supplierId         Int? // For PURCHASE transactions
+  // Separate fields for each entity type
+  materialId         Int?
+  chemicalId         Int?
+  colorId            Int?
   supplier           Supplier?      @relation(fields: [supplierId], references: [id])
   productionLog      ProductionLog? @relation(fields: [productionLogId], references: [id])
-  material           Material?      @relation("MaterialTransactions", fields: [entityId], references: [id])
-  chemical           Chemical?      @relation("ChemicalTransactions", fields: [entityId], references: [id])
-  color              Color?         @relation("ColorTransactions", fields: [entityId], references: [id])
-}
-
-model Supplier {
-  id              Int              @id @default(autoincrement())
-  name            String
-  contactInfo     String?
-  address         String?
-  gstNumber         String?
-  transactionLogs TransactionLog[]
-  createdAt       DateTime         @default(now())
+  // Relationships to specific models
+  material           Material?      @relation(fields: [materialId], references: [id])
+  chemical           Chemical?      @relation(fields: [chemicalId], references: [id])
+  color              Color?         @relation(fields: [colorId], references: [id])
 }

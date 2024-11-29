@@ -74,14 +74,14 @@ export default function ColorAddForm({ isEdit, colorId, colorData }: colorProps)
       {/* Unit Price Field */}
       <div>
         <label htmlFor="avgPrice" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-          Price <span className="text-red-500">*</span>
+          Total Amount  <span className="text-red-500">*</span>
         </label>
         <input
           {...register('avgPrice', { valueAsNumber: true })}
           type="number"
           id="avgPrice"
           className={`bg-gray-50 border ${errors.avgPrice ? 'border-red-500' : 'border-gray-300'} text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
-          placeholder="Price"
+          placeholder="Total Amount"
         />
         {errors.avgPrice && <p className="mt-2 text-sm text-red-600">{errors.avgPrice.message}</p>}
       </div>

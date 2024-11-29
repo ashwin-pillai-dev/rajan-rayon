@@ -8,6 +8,8 @@ import { FaPeopleCarry } from "react-icons/fa";
 import { FaBoxes } from "react-icons/fa";
 import { MdFormatColorFill } from "react-icons/md";
 import { GiChemicalDrop } from "react-icons/gi";
+import { IoIosColorPalette } from "react-icons/io";
+
 
 type PropType = {
     sidebarVisible: boolean
@@ -39,9 +41,19 @@ const DefaultSidebar: React.FC<PropType> = ({ sidebarVisible }) => {
                                 icon={TbTableShare}
                                 label="Masters"
                             >
-                                <Sidebar.Item icon={FaPeopleCarry
-                                } href="/admin/suppliers/list">
+                                <Sidebar.Item
+                                    icon={FaPeopleCarry}
+                                    href="/admin/suppliers/list"
+                                >
                                     Suppliers
+                                </Sidebar.Item>
+                                <Sidebar.Item
+                                    href="/admin/shades/list"
+                                    icon={IoIosColorPalette}
+                                >
+                                    <p>
+                                        Shades
+                                    </p>
                                 </Sidebar.Item>
                             </Sidebar.Collapse>
 
@@ -59,27 +71,9 @@ const DefaultSidebar: React.FC<PropType> = ({ sidebarVisible }) => {
                                 <Sidebar.Item href="/admin/chemicals/list" icon={GiChemicalDrop}>
                                     Chemicals
                                 </Sidebar.Item>
-                                {/* <Sidebar.Item href="#">
-                                    Sales
-                                </Sidebar.Item>
-                                <Sidebar.Item href="#">
-                                    Refunds
-                                </Sidebar.Item>
-                                <Sidebar.Item href="#">
-                                    Shipping
-                                </Sidebar.Item> */}
                             </Sidebar.Collapse>
 
-                            {/* <Sidebar.Item
-                                href="#"
-                                icon={HiViewBoards}
-                                label="Pro"
-                                labelColor="dark"
-                            >
-                                <p>
-                                    Kanban
-                                </p>
-                            </Sidebar.Item>  */}
+
 
                         </Sidebar.ItemGroup>
                     </Sidebar.Items>
