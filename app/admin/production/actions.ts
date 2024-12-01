@@ -3,77 +3,80 @@ import { Supplier, Prisma, ProductionLog } from '@prisma/client';
 import prisma from '../../../lib/prisma';
 import { ProductionLogType, supplierFormType } from './add/productionSchema';
 
-export async function addProduction(input: ProductionLogType):Promise<ProductionLog> {
-  const {batchNumber,productionDate,materialsUsed,quantityProduced,totalCosting,shadeId,shade} = input
-  console.log('shade: ',shade);
-  
+export async function addProduction(input: ProductionLogType): Promise<ProductionLog> {
+  const { batchNumber, productionDate, materialsUsed, quantityProduced, totalCosting, shadeId, shade } = input
+  console.log('shade: ', shade);
 
-const materialUsedInput:Prisma.ProductionMaterialCreateManyProductionLogInput[] = materialsUsed.map((material)=>{
 
-    const materialUsedEnitity:Prisma.ProductionMaterialCreateManyProductionLogInput = material;
+  const materialUsedInput: Prisma.ProductionMaterialCreateManyProductionLogInput[] = materialsUsed.map((material) => {
+    delete material.chemical;
+    delete material.color
+    const materialUsedEnitity: Prisma.ProductionMaterialCreateManyProductionLogInput = {
+      ...material
+    };
     return materialUsedEnitity;
 
-})
-
-console.log('materialUsedInput: ',materialUsedInput);
-
-
-const transactionLogs:Prisma.TransactionLogCreateManyProductionLogInput[] = materialsUsed.map((material)=>{
-  if(material.entityType == 'CHEMICAL'){
-    const transactionLog:Prisma.TransactionLogCreateManyProductionLogInput = {
-      transactionType:'OUTWARD',
-      quantity:material.quantity,
-      units:material.quantity,
-      entityType:material.entityType,
-      totalAmount:material?.chemical?.avgPrice?material?.chemical?.avgPrice:0 * material.quantity,
-      chemicalId:material.chemicalId,
-      description:`${material.quantity} grams used in production of shade ${shade?.name} on ${productionDate.toDateString()}`
-    }
-    return transactionLog;
-  }
-  else{
-    const transactionLog:Prisma.TransactionLogCreateManyProductionLogInput = {
-      transactionType:'OUTWARD',
-      quantity:material.quantity,
-      units:material.quantity,
-      entityType:material.entityType,
-      totalAmount:material?.color?.avgPrice?material?.color?.avgPrice:0 * material.quantity,
-      colorId:material.colorId,
-      description:`${material.quantity} grams used in production of shade ${shade?.name} on ${productionDate.toDateString()}`
-
-    }
-    return transactionLog;
-
-  }
   })
 
-  console.log('transactionLogs: ',transactionLogs);
-  
+  console.log('materialUsedInput: ', materialUsedInput);
+
+
+  const transactionLogs: Prisma.TransactionLogCreateManyProductionLogInput[] = materialsUsed.map((material) => {
+    if (material.entityType == 'CHEMICAL') {
+      const transactionLog: Prisma.TransactionLogCreateManyProductionLogInput = {
+        transactionType: 'OUTWARD',
+        quantity: material.quantity,
+        units: material.quantity,
+        entityType: material.entityType,
+        totalAmount: material?.chemical?.avgPrice ? material?.chemical?.avgPrice : 0 * material.quantity,
+        chemicalId: material.chemicalId,
+        description: `${material.quantity} grams used in production of shade ${shade?.name} on ${productionDate.toDateString()}`
+      }
+      return transactionLog;
+    }
+    else {
+      const transactionLog: Prisma.TransactionLogCreateManyProductionLogInput = {
+        transactionType: 'OUTWARD',
+        quantity: material.quantity,
+        units: material.quantity,
+        entityType: material.entityType,
+        totalAmount: material?.color?.avgPrice ? material?.color?.avgPrice : 0 * material.quantity,
+        colorId: material.colorId,
+        description: `${material.quantity} grams used in production of shade ${shade?.name} on ${productionDate.toDateString()}`
+
+      }
+      return transactionLog;
+
+    }
+  })
+
+  console.log('transactionLogs: ', transactionLogs);
+
 
   const data: Prisma.ProductionLogCreateInput = {
-    batchNumber:batchNumber,
-    productionDate:productionDate,
-    quantityProduced:quantityProduced,
-    totalCosting:totalCosting,
-    shade:{
-      connect:{
-        id:shadeId
+    batchNumber: batchNumber,
+    productionDate: productionDate,
+    quantityProduced: quantityProduced,
+    totalCosting: totalCosting,
+    shade: {
+      connect: {
+        id: shadeId
       }
     },
-    materialsUsed:{
-      createMany:{
-        data:materialUsedInput
+    materialsUsed: {
+      createMany: {
+        data: materialUsedInput
       }
     },
-    TransactionLog:{
-      createMany:{
-        data:transactionLogs
+    TransactionLog: {
+      createMany: {
+        data: transactionLogs
       }
     }
   };
 
-  console.log('production args :',data);
-  
+  console.log('production args :', data);
+
   let productionLog: ProductionLog;
   try {
     productionLog = await prisma.productionLog.create({
