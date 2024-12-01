@@ -1,6 +1,6 @@
 import Select from 'react-select';
 
-export default function SearchAbleSelect({ options, defaultValue, value, getLabel, name, id, getValue, onChange }: {
+export default function SearchAbleSelect({ options,isDisabled, defaultValue, value, getLabel, name, id, getValue, onChange }: {
   options: any[],
   isClearable?: boolean,
   defaultValue?: any,
@@ -8,7 +8,7 @@ export default function SearchAbleSelect({ options, defaultValue, value, getLabe
   value?: any,
   getLabel: any,
   getValue: any,
-  id: string,
+  id: number,
   name: string
   onChange?: Function
 }) {
@@ -16,14 +16,23 @@ export default function SearchAbleSelect({ options, defaultValue, value, getLabe
 
 
   return (
-    <div className="remove-input-txt-border">
+    <div className="remove-input-txt-border border-gray">
       <Select
         defaultValue={defaultValue ? defaultValue : null}
+        styles={{
+          control: (baseStyles, state) => ({
+            ...baseStyles,
+            borderColor: state.isDisabled ? 'gray' : 'gray',
+            backgroundColor:state.isDisabled ?'lightGray':'white'
+          }),
+        }}
         isClearable
         isSearchable
-        id={id}
+        id={id.toString()}
+        instanceId={id.toString()}
         name={name}
         options={options}
+        isDisabled={isDisabled}
         getOptionLabel={getLabel}
         getOptionValue={getValue}
         value={value ?? value}

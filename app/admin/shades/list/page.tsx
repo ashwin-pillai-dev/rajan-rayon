@@ -61,7 +61,7 @@ export default async function page({
       <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
         <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-            <SearchBox name="name" placeholder="Supplier Name" />
+            <SearchBox name="name" placeholder="Shade Name" />
             <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
               <a
                 href="/admin/shades/add"
@@ -91,6 +91,7 @@ export default async function page({
                   <th className="px-4 py-3">Shade Name</th>
                   <th className="px-4 py-3">Color Compsition</th>
                   <th className="px-4 py-3">Chemical Composition</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -122,8 +123,13 @@ export default async function page({
                             )
                           })
                         }
-                      </ul></td>
-
+                      </ul>
+                    </td>
+                    <td className="px-4 py-3">
+                      <a href={`/admin/shades/edit/${shade.id}`} className="text-blue-400 cursor-pointer text-underline">
+                        Edit
+                      </a>
+                    </td>
                   </tr>
                 ))}
               </tbody>
