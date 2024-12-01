@@ -9,6 +9,8 @@ import { FaBoxes } from "react-icons/fa";
 import { MdFormatColorFill } from "react-icons/md";
 import { GiChemicalDrop } from "react-icons/gi";
 import { IoIosColorPalette } from "react-icons/io";
+import { TbNeedleThread } from "react-icons/tb";
+
 
 
 type PropType = {
@@ -72,6 +74,15 @@ const DefaultSidebar: React.FC<PropType> = ({ sidebarVisible }) => {
                                     Chemicals
                                 </Sidebar.Item>
                             </Sidebar.Collapse>
+
+                            <Sidebar.Item
+                                href="/admin/production/list"
+                                icon={TbNeedleThread}
+                            >
+                                <p>
+                                    Production
+                                </p>
+                            </Sidebar.Item>
 
 
 

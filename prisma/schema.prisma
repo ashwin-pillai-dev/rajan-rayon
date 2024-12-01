@@ -89,6 +89,7 @@ model ChemicalComposition {
 
 model ProductionLog {
   id               Int                  @id @default(autoincrement())
+  productionDate DateTime @default(now())
   batchNumber      String // Unique batch number
   shadeId          Int
   materialsUsed    ProductionMaterial[] // Materials used in production
@@ -102,19 +103,19 @@ model ProductionLog {
 model ProductionMaterial {
   id              Int    @id @default(autoincrement())
   productionLogId Int
+  materialId      Int?   // Foreign key for Material
+  colorId         Int?   // Foreign key for Color
+  chemicalId      Int?   // Foreign key for Chemical
   entityType      String // 'MATERIAL', 'COLOR', 'CHEMICAL'
-  entityId        Int // ID of the associated entity
-  quantity        Float // Total weight/volume used
-  costing         Float // Costing according to quantity
-
+  quantity        Float  // Total weight/volume used
+  costing         Float  // Costing according to quantity
   productionLog ProductionLog @relation(fields: [productionLogId], references: [id])
-
-  material Material? @relation("ProductionMaterialMaterial", fields: [entityId], references: [id])
-  color    Color?    @relation("ProductionMaterialColor", fields: [entityId], references: [id])
-  chemical Chemical? @relation("ProductionMaterialChemical", fields: [entityId], references: [id])
-
+  material Material? @relation("ProductionMaterialMaterial", fields: [materialId], references: [id])
+  color    Color?    @relation("ProductionMaterialColor", fields: [colorId], references: [id])
+  chemical Chemical? @relation("ProductionMaterialChemical", fields: [chemicalId], references: [id])
   createdAt DateTime @default(now())
 }
+
 
 model Material {
   id                  Int                  @id @default(autoincrement())

@@ -89,7 +89,7 @@ export default function InwardTransactionForm({ entityType, entityId, suppliers,
             <div className="max-w-lg">
                 <label htmlFor="supplierId">Select Supplier <span className="text-red-500"> *</span></label>
                 <SearchAbleSelect
-                    id='supplierId'
+                    id={1}
                     name='supplierId'
                     options={suppliers ? suppliers : []}
                     getLabel={(option: any) => `${option.name}`}

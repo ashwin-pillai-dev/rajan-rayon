@@ -16,14 +16,15 @@ export default function SearchAbleSelect({ options,isDisabled, defaultValue, val
 
 
   return (
-    <div className="remove-input-txt-border border-gray">
+    <div className="remove-input-txt-border border-gray-50">
       <Select
         defaultValue={defaultValue ? defaultValue : null}
         styles={{
           control: (baseStyles, state) => ({
             ...baseStyles,
-            borderColor: state.isDisabled ? 'gray' : 'gray',
-            backgroundColor:state.isDisabled ?'lightGray':'white'
+            borderColor: state.isDisabled ? '#111827' : '#111827',
+            backgroundColor:state.isDisabled ?'#F9FAFB':'#F9FAFB',
+            borderBlockColor:state.isFocused?'#111827':'#111827',
           }),
         }}
         isClearable

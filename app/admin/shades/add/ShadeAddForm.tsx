@@ -23,12 +23,6 @@ interface shadeProps {
 
 export default function ShadeAddForm({ isEdit, shadeId, shadeData, colors, chemicals }: shadeProps) {
   console.log('edit data : ', shadeData);
-
-
-
-
-
-
   const {
     register,
     handleSubmit,
