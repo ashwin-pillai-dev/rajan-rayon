@@ -1,7 +1,7 @@
 'use client';
 import { failToastMessage, succesToastMessage } from '@/app/utils/toastMeassages';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type Prisma } from '@prisma/client';
+import { Material, Prisma } from '@prisma/client';
 import { Button } from 'flowbite-react';
 import { useRouter } from 'next/navigation';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -13,6 +13,7 @@ interface ProductionProps {
   isEdit: boolean;
   productionId?: number;
   productionData?: ProductionLogType;
+  materials?: Material[];
   shades: Prisma.ShadeGetPayload<{
     include: {
       colorComposition: {
@@ -29,6 +30,7 @@ interface ProductionProps {
   }>[]
 }
 
+
 type shadeWithColorAndChemicalCompostion = Prisma.ShadeGetPayload<{
   include: {
     colorComposition: {
@@ -44,7 +46,7 @@ type shadeWithColorAndChemicalCompostion = Prisma.ShadeGetPayload<{
   }
 }>
 
-export default function ProductionAddForm({ shades, isEdit, productionId, productionData }: ProductionProps) {
+export default function ProductionAddForm({ shades, isEdit, productionId, productionData, materials }: ProductionProps) {
   const {
     register,
     handleSubmit,
@@ -54,13 +56,13 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
     formState: { errors, isSubmitting },
   } = useForm<ProductionLogType>({
     defaultValues: isEdit ? productionData : {
-      totalCosting:0
+      totalCosting: 0
     },
     resolver: zodResolver(productionLogSchema),
 
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove,replace } = useFieldArray({
     control,
     name: 'materialsUsed'
   })
@@ -80,7 +82,7 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
       } else {
         const data = getValues()
         console.log(productionLogSchema.safeParse(data));
-        
+
         // const res = await addProduction(data);
         // if (res) {
         //   succesToastMessage({ message: 'Production log added successfully' });
@@ -136,8 +138,8 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
     console.log('selected shade : ', shade);
 
     shade.colorComposition.forEach((colorComp) => {
-      console.log('color cleint : ',colorComp?.color);
-      
+      console.log('color client : ', colorComp?.color);
+
       append({
         entityType: 'COLOR',
         quantity: colorComp.quantity,
@@ -194,13 +196,13 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
         {errors.batchNumber && <p className="mt-2 text-sm text-red-600">{errors.batchNumber.message}</p>}
       </div>
 
-            {/* Total quantity Field */}
-            <div>
+      {/* Total quantity Field */}
+      <div>
         <label htmlFor="quantityProduced" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-        Quantity produced <span className="text-red-500">*</span>
+          Quantity produced <span className="text-red-500">*</span>
         </label>
         <input
-          {...register('quantityProduced',{ setValueAs: (v) => v === "" ? undefined : Number(v),})}
+          {...register('quantityProduced', { setValueAs: (v) => v === "" ? undefined : Number(v), })}
           type="number"
           step="0.01"
           id="quantityProduced"
@@ -208,6 +210,42 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
           placeholder="Quantity produced"
         />
         {errors.quantityProduced && <p className="mt-2 text-sm text-red-600">{errors.quantityProduced.message}</p>}
+      </div>
+      {/* Material  Field*/}
+
+      <div className="max-w-lg">
+        <label htmlFor="supplierId">Select Material <span className="text-red-500"> *</span></label>
+        <SearchAbleSelect
+          id={1}
+          name='material'
+          options={materials ? materials : []}
+          getLabel={(option: any) => `${option.name}`}
+          getValue={(option: any) => `${option.id}`}
+          onChange={(selectedOption: Material) => {
+            if (selectedOption) {
+              setValue('materialId',selectedOption.id,{ shouldValidate: true })
+              append({
+                entityType: 'MATERIAL',
+                quantity: 0,
+                materialId: selectedOption.id,
+                material: selectedOption,
+                costing: 0,
+              }
+              )
+
+            }
+            else {
+              const materialsToReplace = fields.filter((element,index) => {
+                if(element.entityType != 'MATERIAL'){
+                  return element
+                }
+              })
+              replace(materialsToReplace);
+            }
+          }}
+        >
+        </SearchAbleSelect>
+        {errors.materialId && <span className="text-red-500">{errors.materialId.message}</span>}
       </div>
 
       {/* Shade ID Field */}
@@ -221,8 +259,8 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
           getValue={(option: any) => `${option.id}`}
           onChange={(selectedOption: shadeWithColorAndChemicalCompostion) => {
             if (selectedOption) {
-              console.log('selected shade: ',selectedOption);
-              
+              console.log('selected shade: ', selectedOption);
+
               setValue('shadeId', selectedOption.id, { shouldValidate: true })
               setValue('shade', selectedOption,)
               onShadeChange(selectedOption)
@@ -230,8 +268,12 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
             else {
               setValue('shadeId', -1, { shouldValidate: true })
               setValue('shade', undefined)
-
-              remove()
+              const materialsToReplace = fields.filter((element,index) => {
+                if(element.entityType == 'MATERIAL'){
+                  return element
+                }
+              })
+              replace(materialsToReplace);
             }
           }}
         >
@@ -245,7 +287,7 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
             <div key={field.id} className="border-2 border-gray-300 p-2 mt-4 grid grid-cols-1 md:grid-cols-2 gap-y-2 md:gap-x-2 max-w-xl items-end">
               <div className='max-w-md' >
                 <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  {getValues().materialsUsed[index].entityType == 'COLOR' ? 'Color' : 'Chemical'}<span className="text-red-500">*</span>
+                  {getValues().materialsUsed[index].entityType.charAt(0).toUpperCase() + getValues().materialsUsed[index].entityType.slice(1).toLowerCase()}<span className="text-red-500">*</span>
                 </label>
 
                 <input
@@ -263,6 +305,7 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
 
                 <input
                   type="text"
+                  {...register(`materialsUsed.${index}.quantity`, {setValueAs: (v) => v === "" ? undefined : Number(v),})}
                   defaultValue={getValues().materialsUsed[index].quantity}
                   className={`bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5`}
                 />
@@ -278,9 +321,9 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
 
       {/* Submit Button */}
       <Button size="xs"
-       type="submit" 
-      // onClick={onSubmit}
-       disabled={isSubmitting} className="w-full bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg px-5 py-2.5">
+        type="submit"
+        // onClick={onSubmit1}
+        disabled={isSubmitting} className="w-full bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg px-5 py-2.5">
         <p className="text-white font-medium text-sm">{isEdit ? 'Update Supplier' : 'Add Production'}</p>
       </Button>
     </form>

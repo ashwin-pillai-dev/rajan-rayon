@@ -106,7 +106,7 @@ export default async function page({
                         {
                           shade.colorComposition.map((item, index) => {
                             return (
-                              <li key={index} >{item.color.name} : {item.quantity} kgs</li>
+                              <li key={index} >{item.color.name} : {item.quantity} grams</li>
                             )
                           })
                         }
@@ -119,7 +119,7 @@ export default async function page({
 
                           shade.chemicalComposition.map((item, index) => {
                             return (
-                              <li key={index} >{item.chemical.name} : {item.quantity} kgs</li>
+                              <li key={index} >{item.chemical.name} : {item.quantity} grams</li>
                             )
                           })
                         }

@@ -44,6 +44,16 @@ export default async function Page({
             ? sum + quantityInKg
             : sum - quantityInKg;
     }, 0);
+
+    const totalAmount:number = stocks.reduce((sum, item) => {
+        const totalAmount = item?.totalAmount ?? 0; 
+        return item.transactionType === "INWARD"
+            ? sum + totalAmount?totalAmount:0
+            : sum - totalAmount;
+    }, 0);
+
+    {stocks.reduce((sum, item) => sum + (item.totalAmount ? item.totalAmount : 0), 0)}
+
     return (
         <section className="bg-gray-50 dark:bg-gray-900 sm:p-5">
             <div className=" px-4 mx-auto max-w-screen-xl px-4 lg:px-12">
@@ -145,7 +155,7 @@ export default async function Page({
                                     </td>
                                     <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <span className="font-medium text-center text-gray-700 whitespace-nowrap dark:text-white">
-                                            {stocks.reduce((sum, item) => sum + (item.totalAmount ? item.totalAmount : 0), 0)}
+                                            {totalAmount.toFixed(2)}
                                         </span>
                                     </td>
 

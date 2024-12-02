@@ -13,8 +13,7 @@ export async function addProduction(input: ProductionLogType): Promise<Productio
   const transactionLogs: Prisma.TransactionLogCreateManyProductionLogInput[] = [];
   const colorUpdateArgsArray: Prisma.ColorUpdateArgs[] = [];
   const chemicalUpdateArgsArray: Prisma.ChemicalUpdateArgs[] = [];
-
-
+  const materialUpdateArgsArray: Prisma.MaterialUpdateArgs[] = [];
 
   materialsUsed.forEach((material) => {
     if (material.entityType == 'COLOR') {
@@ -73,7 +72,7 @@ export async function addProduction(input: ProductionLogType): Promise<Productio
           {
             where: { id: material.colorId },
             data: {
-              quantity: { decrement: material.quantity },
+              quantity:newTotalQty ,
               avgPrice: newAvg,
               totalAmount: Number(newTotalAmount.toFixed())
             }
@@ -132,6 +131,64 @@ export async function addProduction(input: ProductionLogType): Promise<Productio
           {
             where: { id: material.chemicalId },
             data: {
+              quantity: newTotalQty,
+              avgPrice: newAvg,
+              totalAmount: Number(newTotalAmount.toFixed())
+            }
+          }
+        )
+      }
+    }
+
+    if (material.entityType == 'MATERIAL') {
+      if (material.materialId && material.material) {
+
+        // For material used input args creation (material)
+
+
+        //calculate costing
+        const costingMaterial = material?.material.avgPrice * (material.quantity);
+
+
+        const materialUsedMaterialEnitity: Prisma.ProductionMaterialCreateManyProductionLogInput = {
+          materialId: material.materialId,
+          quantity: material.quantity,
+          entityType: 'MATERIAL',
+          costing: costingMaterial,
+        };
+
+        materialUsedInput.push(materialUsedMaterialEnitity);
+
+        //update total costing for production log creation
+        totalCostingSum += costingMaterial;
+
+        //Create transaction log (chemicals)
+
+        const materialTransactionLog: Prisma.TransactionLogCreateManyProductionLogInput = {
+          transactionType: 'OUTWARD',
+          quantity: material.quantity,
+          receivingDate: productionDate,
+          units: material.quantity,
+          entityType: material.entityType,
+          totalAmount: (material?.material?.avgPrice ? material?.material?.avgPrice : 0 )* (material.quantity),
+          materialId: material.materialId,
+          description: `${material.quantity} grams used in production of shade ${shade?.name} on ${productionDate.toDateString()}`
+
+        }
+        transactionLogs.push(materialTransactionLog);
+
+
+        //argumnets required to update materials's totalQuantity and average price
+
+        //Calculate chemicals's new totalAmount,totalQty and new average price
+        const newTotalAmount = (material.material?.totalAmount ? material.material?.totalAmount : 0) - ((material.quantity) * material.material.avgPrice);
+        const newTotalQty = (material.material?.quantity ? material.material?.quantity : 0) - (material.quantity);
+        const newAvg = Number((newTotalAmount / newTotalQty).toFixed(2));
+
+        materialUpdateArgsArray.push(
+          {
+            where: { id: material.materialId },
+            data: {
               quantity: { decrement: material.quantity },
               avgPrice: newAvg,
               totalAmount: Number(newTotalAmount.toFixed())
@@ -181,9 +238,10 @@ export async function addProduction(input: ProductionLogType): Promise<Productio
 
       // Execute chemical updates concurrently
       const chemicalUpdatePromises = chemicalUpdateArgsArray.map((arg) => tx.chemical.update(arg));
+      const materialUpdatePromises = materialUpdateArgsArray.map((arg) => tx.material.update(arg));
 
       // Wait for all updates to complete
-      await Promise.all([...colorUpdatePromises, ...chemicalUpdatePromises]);
+      await Promise.all([...colorUpdatePromises, ...chemicalUpdatePromises,...materialUpdatePromises]);
       return productionLogRes;
     }),
     {

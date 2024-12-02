@@ -7,7 +7,7 @@ import { TbTableShare } from 'react-icons/tb';
 import { FaPeopleCarry } from "react-icons/fa";
 import { FaBoxes } from "react-icons/fa";
 import { MdFormatColorFill } from "react-icons/md";
-import { GiChemicalDrop } from "react-icons/gi";
+import { GiChemicalDrop, GiWool } from "react-icons/gi";
 import { IoIosColorPalette } from "react-icons/io";
 import { TbNeedleThread } from "react-icons/tb";
 
@@ -77,7 +77,7 @@ const DefaultSidebar: React.FC<PropType> = ({ sidebarVisible }) => {
 
                             <Sidebar.Item
                                 href="/admin/production/list"
-                                icon={TbNeedleThread}
+                                icon={GiWool}
                             >
                                 <p>
                                     Production

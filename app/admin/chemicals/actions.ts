@@ -16,7 +16,7 @@ export async function addChemical(input: chemicalFormType):Promise<Chemical> {
 
     const data:Prisma.ChemicalCreateInput = {
         name: name,
-        avgPrice,
+        avgPrice:avgPrice/quantity,
         quantity,
         openingStock:quantity,
         totalAmount:avgPrice,

@@ -20,6 +20,32 @@ export default async function Page({
             supplier: true
         }
     })
+
+    const SumtotalAmount:number = stocks.reduce((sum, item) => {
+        console.log('sum: ',sum);
+        console.log('item: ',item);
+        const totalAmount = item?.totalAmount ?? 0; 
+        return item.transactionType == "INWARD"
+            ? sum + totalAmount?totalAmount:0
+            : sum - totalAmount?totalAmount:0;
+    }, 0);
+
+    console.log('totalAmount: ',SumtotalAmount);
+
+
+    const totalQuantity = stocks.reduce((sum, item) => {
+        // Convert grams to kilograms
+
+        
+
+        return item.transactionType === "INWARD"
+            ? sum + item.quantity
+            : sum - item.quantity;
+    }, 0);
+
+    
+
+
     return (
         <section className="bg-gray-50 dark:bg-gray-900 sm:p-5">
             <div className=" px-4 mx-auto max-w-screen-xl px-4 lg:px-12">
@@ -40,7 +66,8 @@ export default async function Page({
                         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
-                                    <th scope="col" className="px-4 py-3">Supplier Name</th>
+                                    <th scope="col" className="px-4 py-3">Date</th>
+                                    <th scope="col" className="px-4 py-3">Inward/Outward</th>
                                     <th scope="col" className="px-4 py-3">Quantity</th>
                                     <th scope="col" className="px-4 py-3">Total Amount</th>
                                     <th scope="col" className="px-4 py-3">Notes</th>
@@ -54,11 +81,16 @@ export default async function Page({
                                             <tr className="border-b dark:border-gray-700" key={stock.id}>
 
 
-                                                <td scope="col" className=" px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                     <span className="font-medium text-gray-700 whitespace-nowrap dark:text-white">
-                                                        {stock.supplier?.name}
+                                                        {stock.receivingDate ? stock.receivingDate?.toDateString() : 'NA'}
                                                     </span>
+                                                </td>
 
+                                                <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                                    <span className={`font-medium ${stock.transactionType == 'INWARD' ? 'text-green-700' : 'text-red-800'} whitespace-nowrap dark:text-white`}>
+                                                        {stock.transactionType}
+                                                    </span>
                                                 </td>
 
                                                 <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -89,14 +121,16 @@ export default async function Page({
                                     <td className="px-4 py-3 font-semibold">
                                         Total
                                     </td>
+                                    <td className="px-4 py-3 font-semibold">
+                                    </td>
                                     <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <span className="font-medium text-center text-gray-700 whitespace-nowrap dark:text-white">
-                                            {stocks.reduce((sum, item) => sum + item.quantity, 0)} Kgs
+                                        {totalQuantity}Kgs
                                         </span>
                                     </td>
                                     <td scope="col" className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <span className="font-medium text-center text-gray-700 whitespace-nowrap dark:text-white">
-                                            {stocks.reduce((sum, item) => sum + (item.totalAmount?item.totalAmount:0), 0)}
+                                            {SumtotalAmount}
                                         </span>
                                     </td>
 
