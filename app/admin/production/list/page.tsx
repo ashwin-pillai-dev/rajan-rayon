@@ -4,29 +4,58 @@ import { failToastMessage } from "@/app/utils/toastMeassages";
 import prisma from "@/lib/prisma";
 import { Supplier, Prisma } from "@prisma/client";
 
+type productionLogsNestedType = Prisma.ProductionLogGetPayload<{
+  include: {
+    shade:true,
+    materialsUsed: {
+      include: {
+        material: true,
+        chemical: true,
+        color: true
+      }
+    }
+  }
+}>
+
 export default async function page({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  const { page = '1', limit = '10', sort = 'asc', name = '' } = await searchParams;
-  let args: Prisma.SupplierFindManyArgs = {};
-  
-  if (name) {
+  const { page = '1', limit = '10', sort = 'asc', shade = '' } = await searchParams;
+  let args: Prisma.ProductionLogFindManyArgs = {};
+
+  if (shade) {
     args.where = {
-      name: {
-        contains: name,
-      },
+      shade:{
+        name:{
+          contains:shade
+        }
+      }
     };
   }
-  
-  let suppliers: Supplier[] = [];
-  
+
+
+  let productionLogs: productionLogsNestedType[] = [];
+
   try {
-    suppliers = await prisma.supplier.findMany(args);
-    console.log('Suppliers: ', suppliers);
+    productionLogs = await prisma.productionLog.findMany({
+      include: {
+        shade:true,
+        materialsUsed: {
+          include: {
+            material: true,
+            chemical: true,
+            color: true,
+            
+          }
+        }
+      },
+      where: args.where
+    });
+    console.log('Production logs: ', productionLogs);
   } catch (error) {
-    failToastMessage({ message: 'Error fetching suppliers' });
+    failToastMessage({ message: 'Error fetching production logs' });
   }
 
   return (
@@ -34,7 +63,7 @@ export default async function page({
       <div className="mx-auto max-w-screen-xl px-4 lg:px-12">
         <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
           <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
-            <SearchBox name="name" placeholder="Supplier Name" />
+            <SearchBox name="shade" placeholder="Shade Name" />
             <div className="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
               <a
                 href="/admin/production/add"
@@ -61,35 +90,30 @@ export default async function page({
             <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                  <th className="px-4 py-3">Supplier Name</th>
-                  <th className="px-4 py-3">Contact Info</th>
-                  <th className="px-4 py-3">Address</th>
-                  <th className="px-4 py-3">GST Number</th>
-                  <th className="px-4 py-3">Actions</th>
+                  <th className="px-4 py-3">Production Date</th>
+                  <th className="px-4 py-3">Shade</th>
+                  <th className="px-4 py-3">Quantity Produced</th>
+                  {/* <th className="px-4 py-3">GST Number</th>
+                  <th className="px-4 py-3">Actions</th> */}
                 </tr>
               </thead>
               <tbody>
-                {suppliers.map((supplier) => (
-                  <tr className="border-b dark:border-gray-700" key={supplier.id}>
+                {productionLogs.map((log) => (
+                  <tr className="border-b dark:border-gray-700" key={log.id}>
                     <td className="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                      <a
-                        href={`/admin/suppliers/details/${supplier.id}`}
-                        className="text-blue-400 cursor-pointer text-underline"
-                      >
-                        {supplier.name}
-                      </a>
+
+                        {log.productionDate.toDateString()}
                     </td>
-                    <td className="px-4 py-2 text-gray-900 dark:text-white">{supplier.contactInfo}</td>
-                    <td className="px-4 py-2 text-gray-900 dark:text-white">{supplier.address}</td>
-                    <td className="px-4 py-2 text-gray-900 dark:text-white">{supplier.gstNumber}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2 text-gray-900 dark:text-white">{log.shade.name}</td>
+                    <td className="px-4 py-2 text-gray-900 dark:text-white">{log.quantityProduced}</td>
+                    {/* <td className="px-4 py-3">
                       <a
                         href={`/admin/suppliers/edit/${supplier.id}`}
                         className="text-blue-400 cursor-pointer text-underline"
                       >
                         Edit
                       </a>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>

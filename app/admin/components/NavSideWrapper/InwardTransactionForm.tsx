@@ -164,7 +164,6 @@ export default function InwardTransactionForm({ entityType, entityId, suppliers,
 
             {/* Submit Button */}
             <Button size="xs"
-                // onClick={onSubmit}
                 type="submit"
                 disabled={isSubmitting} className="w-full bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg px-5 py-2.5">
                 <p className="text-white font-medium text-sm">Add Inward Transaction</p>

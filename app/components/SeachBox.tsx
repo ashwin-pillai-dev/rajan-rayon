@@ -26,7 +26,7 @@ export default function SeachBox({name = '',placeholder=''}:{name:string,placeho
     }, [value, replace]);
     
     return (
-        <div className="w-full md:w-1/2 flex items-center">
+        <div className="w-full md:w-1/3  flex items-center">
             <label htmlFor="simple-search" className="sr-only">Search</label>
             <div className="relative w-full">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">

@@ -68,6 +68,30 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
 
   const router = useRouter();
 
+  async function onSubmit1(data: any) {
+    data.preventDefault()
+    try {
+      if (isEdit && productionId) {
+        // const res = await updateProduction(data, productionData);
+        // if (res) {
+        //   succesToastMessage({ message: 'Pr updated successfully' });
+        //   router.push('/admin/suppliers/list');
+        // }
+      } else {
+        const data = getValues()
+        console.log(productionLogSchema.safeParse(data));
+        
+        // const res = await addProduction(data);
+        // if (res) {
+        //   succesToastMessage({ message: 'Production log added successfully' });
+        //   router.push('/admin/production/list');
+        // }
+      }
+    } catch (error) {
+      failToastMessage({ message: 'Failed to add production log' });
+    }
+  }
+
   async function onSubmit(data: ProductionLogType) {
     try {
       if (isEdit && productionId) {
@@ -112,11 +136,13 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
     console.log('selected shade : ', shade);
 
     shade.colorComposition.forEach((colorComp) => {
+      console.log('color cleint : ',colorComp?.color);
+      
       append({
         entityType: 'COLOR',
         quantity: colorComp.quantity,
         colorId: colorComp.colorId,
-        color: colorComp.color,
+        color: colorComp?.color,
         costing: 0,
       }
       )
@@ -127,7 +153,7 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
         entityType: 'CHEMICAL',
         quantity: chemicalComp.quantity,
         chemicalId: chemicalComp.chemicalId,
-        chemical: chemicalComp.chemical,
+        chemical: chemicalComp?.chemical,
         costing: 0,
       }
       )
@@ -251,7 +277,10 @@ export default function ProductionAddForm({ shades, isEdit, productionId, produc
 
 
       {/* Submit Button */}
-      <Button size="xs" type="submit" disabled={isSubmitting} className="w-full bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg px-5 py-2.5">
+      <Button size="xs"
+       type="submit" 
+      // onClick={onSubmit}
+       disabled={isSubmitting} className="w-full bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg px-5 py-2.5">
         <p className="text-white font-medium text-sm">{isEdit ? 'Update Supplier' : 'Add Production'}</p>
       </Button>
     </form>
