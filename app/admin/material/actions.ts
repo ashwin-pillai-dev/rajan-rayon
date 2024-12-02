@@ -1,7 +1,7 @@
 'use server'
 import { Material, Prisma, TransactionLog } from '@prisma/client';
 import prisma from '../../../lib/prisma';
-import { materialFormType } from '../shades/add/shadeSchema';
+import { materialFormType } from '../material/add/materialSchema';
 import { inwardTransactionFormType } from '../components/zodSchemas/inwardTransacrionSchema';
 import { redirect } from 'next/navigation';
 
